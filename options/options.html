@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cowl Settings</title>
+  <link rel="stylesheet" href="../assets/css/tailwind.css">
+  <link rel="stylesheet" href="options.css">
+</head>
+<body class="min-h-screen bg-gray-950 text-gray-100 font-sans antialiased">
+  <div id="app" class="max-w-2xl mx-auto p-6">
+    <header class="flex items-center justify-between mb-8">
+      <div>
+        <div class="flex items-center gap-3">
+          <img src="../assets/logo.png" alt="" class="w-5 h-5 rounded">
+          <h1 class="text-2xl font-bold text-indigo-400">Cowl Settings</h1>
+        </div>
+        <p class="text-sm text-gray-500 mt-1">Privacy Blur &amp; Lock for WhatsApp / Telegram</p>
+      </div>
+      <span id="lockIndicator" class="text-xs px-3 py-1 rounded-full bg-gray-800 text-gray-400"></span>
+    </header>
+
+    <section class="mb-8">
+      <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Blur Settings</h2>
+      <div class="bg-gray-900 rounded-xl p-4 space-y-4">
+        <label class="flex items-center justify-between">
+          <span class="text-sm">Enable Blur</span>
+          <input type="checkbox" id="blurEnabled" class="toggle">
+        </label>
+        <div>
+          <label class="text-sm block mb-1">Blur Radius: <span id="radiusValue">8</span>px</label>
+          <input type="range" id="blurRadius" min="2" max="20" value="8" class="w-full">
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Per-Platform Toggles</h2>
+      <div class="bg-gray-900 rounded-xl p-4 space-y-4">
+        <div>
+          <h3 class="font-medium text-indigo-300 mb-2">WhatsApp</h3>
+          <div class="space-y-2 pl-2">
+            <label class="flex items-center justify-between text-sm"><span>Blur Messages</span><input type="checkbox" id="waBlurMessages" class="toggle"></label>
+            <label class="flex items-center justify-between text-sm"><span>Blur Names</span><input type="checkbox" id="waBlurNames" class="toggle"></label>
+            <label class="flex items-center justify-between text-sm"><span>Blur Media</span><input type="checkbox" id="waBlurMedia" class="toggle"></label>
+            <label class="flex items-center justify-between text-sm"><span>Blur Input</span><input type="checkbox" id="waBlurInput" class="toggle"></label>
+          </div>
+        </div>
+        <div>
+          <h3 class="font-medium text-indigo-300 mb-2">Telegram</h3>
+          <div class="space-y-2 pl-2">
+            <label class="flex items-center justify-between text-sm"><span>Blur Messages</span><input type="checkbox" id="tgBlurMessages" class="toggle"></label>
+            <label class="flex items-center justify-between text-sm"><span>Blur Names</span><input type="checkbox" id="tgBlurNames" class="toggle"></label>
+            <label class="flex items-center justify-between text-sm"><span>Blur Media</span><input type="checkbox" id="tgBlurMedia" class="toggle"></label>
+            <label class="flex items-center justify-between text-sm"><span>Blur Input</span><input type="checkbox" id="tgBlurInput" class="toggle"></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Security</h2>
+      <div class="bg-gray-900 rounded-xl p-4 space-y-4">
+        <div>
+          <h3 class="font-medium mb-2">Password</h3>
+          <div id="passwordSection" class="space-y-2">
+            <div id="noPasswordMsg" class="text-sm text-yellow-400 hidden">No password set. Set one below.</div>
+            <input type="password" id="currentPassword" placeholder="Current password" class="input-field hidden">
+            <input type="password" id="newPassword" placeholder="New password" class="input-field">
+            <input type="password" id="confirmPassword" placeholder="Confirm new password" class="input-field">
+            <button id="btnSetPassword" class="btn-primary">Set Password</button>
+            <div id="passwordError" class="text-sm text-red-400 hidden"></div>
+            <div id="passwordSuccess" class="text-sm text-green-400 hidden"></div>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="font-medium mb-2">Auto-Lock</h3>
+          <label class="flex items-center justify-between text-sm"><span>Enabled</span><input type="checkbox" id="autoLockEnabled" class="toggle"></label>
+          <div class="mt-2">
+            <label class="text-sm">Timeout: <span id="timeoutValue">5</span> minutes</label>
+            <input type="range" id="autoLockTimeout" min="1" max="30" value="5" class="w-full">
+          </div>
+          <label class="flex items-center justify-between text-sm mt-2"><span>Lock on tab switch</span><input type="checkbox" id="lockOnBackground" class="toggle"></label>
+        </div>
+
+        <div>
+          <h3 class="font-medium mb-2">Google Recovery</h3>
+          <p id="googleStatus" class="text-sm text-gray-400 mb-2">Not connected</p>
+          <button id="btnConnectGoogle" class="btn-secondary">Connect Google Account</button>
+          <div id="googleError" class="text-sm text-red-400 hidden mt-1"></div>
+        </div>
+
+        <div>
+          <h3 class="font-medium text-red-400 mb-2">Danger Zone</h3>
+          <button id="btnUninstall" class="btn-danger">Delete Extension</button>
+          <p class="text-xs text-gray-500 mt-2">This action will ask for your password before uninstalling. Note: this does not prevent uninstallation via about:addons.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">About</h2>
+      <div class="bg-gray-900 rounded-xl p-4 text-sm text-gray-400 space-y-1">
+        <p>Cowl v1.0.0 — Privacy Blur &amp; Lock for WhatsApp/Telegram Web</p>
+        <p>All data stored locally. No external servers.</p>
+      </div>
+    </section>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>

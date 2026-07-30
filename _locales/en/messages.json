@@ -1,0 +1,8 @@
+{
+  "appName": {
+    "message": "Cowl - Secure Messaging Privacy"
+  },
+  "appDesc": {
+    "message": "Blurs messages/media and adds password auto-lock protection for WhatsApp Web and Telegram Web."
+  }
+}

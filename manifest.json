@@ -1,0 +1,58 @@
+{
+  "manifest_version": 3,
+  "name": "Cowl - Secure Messaging Privacy",
+  "version": "1.0.0",
+  "description": "Blurs messages/media and adds password auto-lock protection for WhatsApp Web and Telegram Web.",
+  "default_locale": "en",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "cowl@cowl-extension",
+      "strict_min_version": "112.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  },
+  "permissions": [
+    "storage",
+    "idle",
+    "tabs",
+    "identity",
+    "management"
+  ],
+  "host_permissions": [
+    "*://web.whatsapp.com/*",
+    "*://web.telegram.org/*",
+    "https://accounts.google.com/*",
+    "https://www.googleapis.com/*"
+  ],
+  "background": {
+    "scripts": ["background/background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://web.whatsapp.com/*"],
+      "js": ["content/blur-whatsapp.js", "content/lockscreen.js"],
+      "css": ["assets/css/injected-blur.css"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["*://web.telegram.org/*"],
+      "js": ["content/blur-telegram.js", "content/lockscreen.js"],
+      "css": ["assets/css/injected-blur.css"],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon-16.png",
+      "48": "assets/icons/icon-48.png",
+      "128": "assets/icons/icon-128.png"
+    }
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  }
+}

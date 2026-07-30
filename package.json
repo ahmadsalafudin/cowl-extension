@@ -1,0 +1,16 @@
+{
+  "name": "cowl-extension",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cowl — Secure Messaging Privacy Extension for Firefox",
+  "scripts": {
+    "build:css": "npx tailwindcss -i ./assets/css/tailwind.src.css -o ./assets/css/tailwind.css --minify",
+    "dev": "npx web-ext run --source-dir=./",
+    "lint": "npx web-ext lint --source-dir=./",
+    "build": "npx web-ext build --source-dir=./ --artifacts-dir=./dist --overwrite-dest"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0",
+    "web-ext": "^8.0.0"
+  }
+}
