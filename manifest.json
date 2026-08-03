@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Cowl - Secure Messaging Privacy",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Blurs messages/media and adds password auto-lock protection for WhatsApp Web and Telegram Web.",
   "default_locale": "en",
   "browser_specific_settings": {
