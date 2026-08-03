@@ -2,10 +2,17 @@ let settings = {
   enabled: true,
   blurRadiusPx: 8,
   telegram: {
-    blurMessages: true,
-    blurNames: true,
-    blurMedia: true,
-    blurInput: false
+    sidebar: {
+      blurName: true,
+      blurProfile: true,
+      blurMessage: true
+    },
+    content: {
+      blurName: true,
+      blurProfile: true,
+      blurMessage: true,
+      blurMedia: true
+    }
   }
 }
 
@@ -14,32 +21,54 @@ function applyBlurRadius(radius) {
 }
 
 const SELECTORS = {
-  messages: [
-    '.bubble-content, .bubble',
-    '.message, .Message',
-    'div[class*="message"]:not([class*="input"]):not([class*="compose"])'
-  ],
-  names: [
-    '.chat-title, .dialog-title',
-    '.peer-title, .user-title',
-    'span[class*="title"]',
-    '.ChatHeader .title'
-  ],
-  media: [
-    '.photo, .video',
-    '.media-photo, .media-video',
-    'img[class*="photo"], img[class*="media"]',
-    'canvas.thumbnail'
-  ],
-  input: [
-    '.input-message-container',
-    'div[contenteditable="true"]',
-    '.compose-area'
-  ]
+  sidebar: {
+    name: [
+      '.chat-title, .dialog-title',
+      '.peer-title, .user-title',
+      'span[class*="title"]',
+      '.ChatHeader .title'
+    ],
+    profile: [
+      '.chat-avatar, .dialog-avatar',
+      '.peer-avatar, .user-avatar',
+      'img[class*="avatar"]',
+      '.ChatHeader img'
+    ],
+    message: [
+      '.bubble-content, .bubble',
+      '.message, .Message',
+      'div[class*="message"]:not([class*="input"]):not([class*="compose"])'
+    ]
+  },
+  content: {
+    name: [
+      '.chat-title, .dialog-title',
+      '.peer-title, .user-title',
+      'span[class*="title"]',
+      '.ChatHeader .title'
+    ],
+    profile: [
+      '.chat-avatar, .dialog-avatar',
+      '.peer-avatar, .user-avatar',
+      'img[class*="avatar"]',
+      '.ChatHeader img'
+    ],
+    message: [
+      '.bubble-content, .bubble',
+      '.message, .Message',
+      'div[class*="message"]:not([class*="input"]):not([class*="compose"])'
+    ],
+    media: [
+      '.photo, .video',
+      '.media-photo, .media-video',
+      'img[class*="photo"], img[class*="media"]',
+      'canvas.thumbnail'
+    ]
+  }
 }
 
-function getSelectorString(types) {
-  return types.flatMap(t => SELECTORS[t] || []).join(', ')
+function getSelectorString(category, types) {
+  return types.flatMap(t => SELECTORS[category][t] || []).join(', ')
 }
 
 function observeAndBlur() {
@@ -47,13 +76,31 @@ function observeAndBlur() {
 
   applyBlurRadius(settings.blurRadiusPx)
 
-  const messageSelector = settings.telegram.blurMessages ? getSelectorString(['messages']) : ''
-  const nameSelector = settings.telegram.blurNames ? getSelectorString(['names']) : ''
-  const mediaSelector = settings.telegram.blurMedia ? getSelectorString(['media']) : ''
-  const inputSelector = settings.telegram.blurInput ? getSelectorString(['input']) : ''
+  const selectors = []
 
-  const combinedSelector = [messageSelector, nameSelector, mediaSelector, inputSelector]
-    .filter(s => s).join(', ')
+  if (settings.telegram.sidebar.blurName) {
+    selectors.push(getSelectorString('sidebar', ['name']))
+  }
+  if (settings.telegram.sidebar.blurProfile) {
+    selectors.push(getSelectorString('sidebar', ['profile']))
+  }
+  if (settings.telegram.sidebar.blurMessage) {
+    selectors.push(getSelectorString('sidebar', ['message']))
+  }
+  if (settings.telegram.content.blurName) {
+    selectors.push(getSelectorString('content', ['name']))
+  }
+  if (settings.telegram.content.blurProfile) {
+    selectors.push(getSelectorString('content', ['profile']))
+  }
+  if (settings.telegram.content.blurMessage) {
+    selectors.push(getSelectorString('content', ['message']))
+  }
+  if (settings.telegram.content.blurMedia) {
+    selectors.push(getSelectorString('content', ['media']))
+  }
+
+  const combinedSelector = selectors.filter(s => s).join(', ')
 
   if (!combinedSelector) {
     clearBlur()

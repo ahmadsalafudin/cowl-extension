@@ -3,14 +3,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     blurEnabled: document.getElementById('blurEnabled'),
     blurRadius: document.getElementById('blurRadius'),
     radiusValue: document.getElementById('radiusValue'),
-    waBlurMessages: document.getElementById('waBlurMessages'),
-    waBlurNames: document.getElementById('waBlurNames'),
-    waBlurMedia: document.getElementById('waBlurMedia'),
-    waBlurInput: document.getElementById('waBlurInput'),
-    tgBlurMessages: document.getElementById('tgBlurMessages'),
-    tgBlurNames: document.getElementById('tgBlurNames'),
-    tgBlurMedia: document.getElementById('tgBlurMedia'),
-    tgBlurInput: document.getElementById('tgBlurInput'),
+    waSidebarBlurName: document.getElementById('waSidebarBlurName'),
+    waSidebarBlurProfile: document.getElementById('waSidebarBlurProfile'),
+    waSidebarBlurMessage: document.getElementById('waSidebarBlurMessage'),
+    waContentBlurName: document.getElementById('waContentBlurName'),
+    waContentBlurProfile: document.getElementById('waContentBlurProfile'),
+    waContentBlurMessage: document.getElementById('waContentBlurMessage'),
+    waContentBlurMedia: document.getElementById('waContentBlurMedia'),
+    tgSidebarBlurName: document.getElementById('tgSidebarBlurName'),
+    tgSidebarBlurProfile: document.getElementById('tgSidebarBlurProfile'),
+    tgSidebarBlurMessage: document.getElementById('tgSidebarBlurMessage'),
+    tgContentBlurName: document.getElementById('tgContentBlurName'),
+    tgContentBlurProfile: document.getElementById('tgContentBlurProfile'),
+    tgContentBlurMessage: document.getElementById('tgContentBlurMessage'),
+    tgContentBlurMedia: document.getElementById('tgContentBlurMedia'),
     currentPassword: document.getElementById('currentPassword'),
     newPassword: document.getElementById('newPassword'),
     confirmPassword: document.getElementById('confirmPassword'),
@@ -22,9 +28,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     autoLockTimeout: document.getElementById('autoLockTimeout'),
     timeoutValue: document.getElementById('timeoutValue'),
     lockOnBackground: document.getElementById('lockOnBackground'),
-    googleStatus: document.getElementById('googleStatus'),
-    btnConnectGoogle: document.getElementById('btnConnectGoogle'),
-    googleError: document.getElementById('googleError'),
     btnUninstall: document.getElementById('btnUninstall'),
     lockIndicator: document.getElementById('lockIndicator')
   }
@@ -50,15 +53,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     els.blurRadius.value = bs.blurRadiusPx
     els.radiusValue.textContent = bs.blurRadiusPx
 
-    els.waBlurMessages.checked = bs.whatsapp.blurMessages
-    els.waBlurNames.checked = bs.whatsapp.blurNames
-    els.waBlurMedia.checked = bs.whatsapp.blurMedia
-    els.waBlurInput.checked = bs.whatsapp.blurInput
+    els.waSidebarBlurName.checked = bs.whatsapp.sidebar.blurName
+    els.waSidebarBlurProfile.checked = bs.whatsapp.sidebar.blurProfile
+    els.waSidebarBlurMessage.checked = bs.whatsapp.sidebar.blurMessage
+    els.waContentBlurName.checked = bs.whatsapp.content.blurName
+    els.waContentBlurProfile.checked = bs.whatsapp.content.blurProfile
+    els.waContentBlurMessage.checked = bs.whatsapp.content.blurMessage
+    els.waContentBlurMedia.checked = bs.whatsapp.content.blurMedia
 
-    els.tgBlurMessages.checked = bs.telegram.blurMessages
-    els.tgBlurNames.checked = bs.telegram.blurNames
-    els.tgBlurMedia.checked = bs.telegram.blurMedia
-    els.tgBlurInput.checked = bs.telegram.blurInput
+    els.tgSidebarBlurName.checked = bs.telegram.sidebar.blurName
+    els.tgSidebarBlurProfile.checked = bs.telegram.sidebar.blurProfile
+    els.tgSidebarBlurMessage.checked = bs.telegram.sidebar.blurMessage
+    els.tgContentBlurName.checked = bs.telegram.content.blurName
+    els.tgContentBlurProfile.checked = bs.telegram.content.blurProfile
+    els.tgContentBlurMessage.checked = bs.telegram.content.blurMessage
+    els.tgContentBlurMedia.checked = bs.telegram.content.blurMedia
 
     els.autoLockEnabled.checked = res.autoLockEnabled
     els.autoLockTimeout.value = res.autoLockTimeoutMinutes
@@ -76,14 +85,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       els.currentPassword.classList.add('hidden')
       els.btnSetPassword.textContent = 'Set Password'
     }
-
-    if (res.googleLinked) {
-      els.googleStatus.textContent = '✅ Google account connected (for recovery)'
-      els.btnConnectGoogle.textContent = 'Reconnect Google Account'
-    } else {
-      els.googleStatus.textContent = '❌ Not connected'
-      els.btnConnectGoogle.textContent = 'Connect Google Account'
-    }
   }
 
   async function saveBlurSettings() {
@@ -93,16 +94,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         enabled: els.blurEnabled.checked,
         blurRadiusPx: parseInt(els.blurRadius.value),
         whatsapp: {
-          blurMessages: els.waBlurMessages.checked,
-          blurNames: els.waBlurNames.checked,
-          blurMedia: els.waBlurMedia.checked,
-          blurInput: els.waBlurInput.checked
+          sidebar: {
+            blurName: els.waSidebarBlurName.checked,
+            blurProfile: els.waSidebarBlurProfile.checked,
+            blurMessage: els.waSidebarBlurMessage.checked
+          },
+          content: {
+            blurName: els.waContentBlurName.checked,
+            blurProfile: els.waContentBlurProfile.checked,
+            blurMessage: els.waContentBlurMessage.checked,
+            blurMedia: els.waContentBlurMedia.checked
+          }
         },
         telegram: {
-          blurMessages: els.tgBlurMessages.checked,
-          blurNames: els.tgBlurNames.checked,
-          blurMedia: els.tgBlurMedia.checked,
-          blurInput: els.tgBlurInput.checked
+          sidebar: {
+            blurName: els.tgSidebarBlurName.checked,
+            blurProfile: els.tgSidebarBlurProfile.checked,
+            blurMessage: els.tgSidebarBlurMessage.checked
+          },
+          content: {
+            blurName: els.tgContentBlurName.checked,
+            blurProfile: els.tgContentBlurProfile.checked,
+            blurMessage: els.tgContentBlurMessage.checked,
+            blurMedia: els.tgContentBlurMedia.checked
+          }
         }
       }
     })
@@ -113,14 +128,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     els.radiusValue.textContent = els.blurRadius.value
   })
   els.blurRadius.addEventListener('change', saveBlurSettings)
-  els.waBlurMessages.addEventListener('change', saveBlurSettings)
-  els.waBlurNames.addEventListener('change', saveBlurSettings)
-  els.waBlurMedia.addEventListener('change', saveBlurSettings)
-  els.waBlurInput.addEventListener('change', saveBlurSettings)
-  els.tgBlurMessages.addEventListener('change', saveBlurSettings)
-  els.tgBlurNames.addEventListener('change', saveBlurSettings)
-  els.tgBlurMedia.addEventListener('change', saveBlurSettings)
-  els.tgBlurInput.addEventListener('change', saveBlurSettings)
+  els.waSidebarBlurName.addEventListener('change', saveBlurSettings)
+  els.waSidebarBlurProfile.addEventListener('change', saveBlurSettings)
+  els.waSidebarBlurMessage.addEventListener('change', saveBlurSettings)
+  els.waContentBlurName.addEventListener('change', saveBlurSettings)
+  els.waContentBlurProfile.addEventListener('change', saveBlurSettings)
+  els.waContentBlurMessage.addEventListener('change', saveBlurSettings)
+  els.waContentBlurMedia.addEventListener('change', saveBlurSettings)
+  els.tgSidebarBlurName.addEventListener('change', saveBlurSettings)
+  els.tgSidebarBlurProfile.addEventListener('change', saveBlurSettings)
+  els.tgSidebarBlurMessage.addEventListener('change', saveBlurSettings)
+  els.tgContentBlurName.addEventListener('change', saveBlurSettings)
+  els.tgContentBlurProfile.addEventListener('change', saveBlurSettings)
+  els.tgContentBlurMessage.addEventListener('change', saveBlurSettings)
+  els.tgContentBlurMedia.addEventListener('change', saveBlurSettings)
 
   els.btnSetPassword.addEventListener('click', async () => {
     const newPwd = els.newPassword.value
@@ -177,20 +198,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       action: 'updateSecurityConfig',
       lockOnBackground: els.lockOnBackground.checked
     })
-  })
-
-  els.btnConnectGoogle.addEventListener('click', async () => {
-    els.btnConnectGoogle.disabled = true
-    els.btnConnectGoogle.textContent = 'Connecting...'
-    const res = await browser.runtime.sendMessage({ action: 'connectGoogle' })
-    els.btnConnectGoogle.disabled = false
-    if (res && res.success) {
-      els.googleStatus.textContent = '✅ Google account connected (for recovery)'
-      els.btnConnectGoogle.textContent = 'Reconnect Google Account'
-    } else {
-      showError(els.googleError, 'Failed to connect: ' + (res?.error || 'unknown'))
-      els.btnConnectGoogle.textContent = 'Connect Google Account'
-    }
   })
 
   els.btnUninstall.addEventListener('click', async () => {

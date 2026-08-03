@@ -16,16 +16,30 @@ const DEFAULT_SETTINGS = {
     enabled: true,
     blurRadiusPx: 8,
     whatsapp: {
-      blurMessages: true,
-      blurNames: true,
-      blurMedia: true,
-      blurInput: false
+      sidebar: {
+        blurName: true,
+        blurProfile: true,
+        blurMessage: true
+      },
+      content: {
+        blurName: true,
+        blurProfile: true,
+        blurMessage: true,
+        blurMedia: true
+      }
     },
     telegram: {
-      blurMessages: true,
-      blurNames: true,
-      blurMedia: true,
-      blurInput: false
+      sidebar: {
+        blurName: true,
+        blurProfile: true,
+        blurMessage: true
+      },
+      content: {
+        blurName: true,
+        blurProfile: true,
+        blurMessage: true,
+        blurMedia: true
+      }
     }
   }
 }
