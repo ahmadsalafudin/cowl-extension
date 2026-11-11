@@ -9,115 +9,182 @@
 </head>
 <body class="min-h-screen bg-gray-950 text-gray-100 font-sans antialiased">
   <div id="app" class="max-w-2xl mx-auto p-6">
-    <header class="flex items-center justify-between mb-8">
-      <div>
-        <div class="flex items-center gap-3">
-          <img src="../assets/logo.png" alt="" class="w-4 h-4 rounded">
-          <h1 class="text-2xl font-bold text-indigo-400">Cowl Settings</h1>
-        </div>
-        <p class="text-sm text-gray-500 mt-1">Privacy Blur & Lock for WhatsApp / Telegram</p>
+    <header class="mb-8">
+      <div class="flex items-center gap-3">
+        <img src="../assets/logo.png" alt="" class="w-4 h-4 rounded">
+        <h1 class="text-2xl font-bold text-indigo-400">Cowl Settings</h1>
       </div>
-      <span id="lockIndicator" class="text-xs px-3 py-1 rounded-full bg-gray-800 text-gray-400"></span>
+      <p class="text-sm text-gray-500 mt-1">Privacy Blur for WhatsApp / Telegram. Changes apply instantly, no reload needed.</p>
     </header>
 
     <section class="mb-8">
-      <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Blur Settings</h2>
-      <div class="bg-gray-900 rounded-xl p-4 space-y-4">
-        <label class="flex items-center justify-between">
-          <span class="text-sm">Enable Blur</span>
-          <input type="checkbox" id="blurEnabled" class="toggle">
+      <h2 class="section-title">Blur</h2>
+      <div class="card space-y-5">
+        <label class="row">
+          <span class="text-sm font-medium">Enable blur</span>
+          <input type="checkbox" class="toggle" data-path="enabled">
         </label>
-        <div>
-          <label class="text-sm block mb-1">Blur Radius: <span id="radiusValue">8</span>px</label>
-          <input type="range" id="blurRadius" min="2" max="20" value="8" class="w-full">
+
+        <div class="row">
+          <div>
+            <div class="text-sm">Preset</div>
+            <p class="hint">A quick starting point. <span id="presetHint"></span></p>
+          </div>
+          <div class="seg" role="group" aria-label="Preset">
+            <button type="button" data-preset="light">Light</button>
+            <button type="button" data-preset="normal">Normal</button>
+            <button type="button" data-preset="paranoid">Paranoid</button>
+          </div>
+        </div>
+
+        <div id="blurOptions" class="dim-group space-y-5">
+          <div id="preview" class="preview" data-reveal="hover">
+            <div class="preview-row">
+              <span class="preview-avatar t"></span>
+              <div class="preview-text">
+                <div class="preview-name t">Alex Rivera</div>
+                <div class="preview-msg t">Are we still on for 7 tonight? Bring the documents.</div>
+              </div>
+              <span class="preview-thumb m"></span>
+            </div>
+            <p id="previewHint" class="preview-hint"></p>
+          </div>
+
+          <div>
+            <div class="row mb-2">
+              <span class="text-sm">Text &amp; names intensity</span>
+              <span class="text-sm text-gray-400"><span data-out="blurRadiusPx"></span>px</span>
+            </div>
+            <input type="range" min="1" max="30" step="1" class="w-full" data-path="blurRadiusPx" aria-label="Text and names blur intensity">
+          </div>
+
+          <div>
+            <div class="row mb-2">
+              <span class="text-sm">Photos &amp; videos intensity</span>
+              <span class="text-sm text-gray-400"><span data-out="mediaRadiusPx"></span>px</span>
+            </div>
+            <input type="range" min="1" max="40" step="1" class="w-full" data-path="mediaRadiusPx" aria-label="Photos and videos blur intensity">
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="text-sm">Reveal</div>
+              <p id="revealHint" class="hint"></p>
+            </div>
+            <div class="seg" role="group" aria-label="Reveal">
+              <button type="button" data-path="reveal" data-value="hover">On hover</button>
+              <button type="button" data-path="reveal" data-value="click">On click</button>
+              <button type="button" data-path="reveal" data-value="never">Never</button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="text-sm">Animation</div>
+              <p class="hint">Speed of the blur and reveal fade.</p>
+            </div>
+            <div class="seg" role="group" aria-label="Animation">
+              <button type="button" data-path="transition" data-value="off">Off</button>
+              <button type="button" data-path="transition" data-value="fast">Fast</button>
+              <button type="button" data-path="transition" data-value="normal">Normal</button>
+              <button type="button" data-path="transition" data-value="slow">Slow</button>
+            </div>
+          </div>
+
+          <label class="row">
+            <div>
+              <div class="text-sm">Blur when idle</div>
+              <p class="hint">Covers the whole page when you stop using it. Moving the mouse or typing shows it again.</p>
+            </div>
+            <input type="checkbox" class="toggle" data-path="blurOnIdle">
+          </label>
+
+          <div class="row">
+            <div>
+              <div class="text-sm">Idle after</div>
+            </div>
+            <div class="seg" role="group" aria-label="Idle after">
+              <button type="button" data-path="idleSeconds" data-num data-value="30">30 sec</button>
+              <button type="button" data-path="idleSeconds" data-num data-value="60">1 min</button>
+              <button type="button" data-path="idleSeconds" data-num data-value="120">2 min</button>
+              <button type="button" data-path="idleSeconds" data-num data-value="300">5 min</button>
+            </div>
+          </div>
+
+          <label class="row">
+            <div>
+              <div class="text-sm">Blur when window loses focus</div>
+              <p class="hint">Blurs the whole page while another window is in front.</p>
+            </div>
+            <input type="checkbox" class="toggle" data-path="blurOnWindowBlur">
+          </label>
         </div>
       </div>
     </section>
 
     <section class="mb-8">
-      <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Per-Platform Toggles</h2>
-      <div class="bg-gray-900 rounded-xl p-4 space-y-4">
-        <div>
-          <h3 class="font-medium text-indigo-300 mb-2">WhatsApp</h3>
-          <div class="space-y-2 pl-2">
-            <h4 class="text-xs text-gray-400 uppercase tracking-wide mb-1">Sidebar</h4>
-            <div class="space-y-2 ml-2">
-              <label class="flex items-center justify-between text-sm"><span>Blur Name</span><input type="checkbox" id="waSidebarBlurName" class="toggle"></label>
-              <label class="flex items-center justify-between text-sm"><span>Blur Profile</span><input type="checkbox" id="waSidebarBlurProfile" class="toggle"></label>
-              <label class="flex items-center justify-between text-sm"><span>Blur Message Preview</span><input type="checkbox" id="waSidebarBlurMessage" class="toggle"></label>
-            </div>
-            <h4 class="text-xs text-gray-400 uppercase tracking-wide mb-1 mt-3">Content</h4>
-            <div class="space-y-2 ml-2">
-              <label class="flex items-center justify-between text-sm"><span>Blur Name</span><input type="checkbox" id="waContentBlurName" class="toggle"></label>
-              <label class="flex items-center justify-between text-sm"><span>Blur Profile</span><input type="checkbox" id="waContentBlurProfile" class="toggle"></label>
-              <label class="flex items-center justify-between text-sm"><span>Blur Message</span><input type="checkbox" id="waContentBlurMessage" class="toggle"></label>
-              <label class="flex items-center justify-between text-sm"><span>Blur Media</span><input type="checkbox" id="waContentBlurMedia" class="toggle"></label>
-            </div>
-          </div>
-        </div>
-        <div>
-          <h3 class="font-medium text-indigo-300 mb-2">Telegram</h3>
-          <div class="space-y-2 pl-2">
-            <h4 class="text-xs text-gray-400 uppercase tracking-wide mb-1">Sidebar</h4>
-            <div class="space-y-2 ml-2">
-              <label class="flex items-center justify-between text-sm"><span>Blur Name</span><input type="checkbox" id="tgSidebarBlurName" class="toggle"></label>
-              <label class="flex items-center justify-between text-sm"><span>Blur Profile</span><input type="checkbox" id="tgSidebarBlurProfile" class="toggle"></label>
-              <label class="flex items-center justify-between text-sm"><span>Blur Message Preview</span><input type="checkbox" id="tgSidebarBlurMessage" class="toggle"></label>
-            </div>
-            <h4 class="text-xs text-gray-400 uppercase tracking-wide mb-1 mt-3">Content</h4>
-            <div class="space-y-2 ml-2">
-              <label class="flex items-center justify-between text-sm"><span>Blur Name</span><input type="checkbox" id="tgContentBlurName" class="toggle"></label>
-              <label class="flex items-center justify-between text-sm"><span>Blur Profile</span><input type="checkbox" id="tgContentBlurProfile" class="toggle"></label>
-              <label class="flex items-center justify-between text-sm"><span>Blur Message</span><input type="checkbox" id="tgContentBlurMessage" class="toggle"></label>
-              <label class="flex items-center justify-between text-sm"><span>Blur Media</span><input type="checkbox" id="tgContentBlurMedia" class="toggle"></label>
-            </div>
-          </div>
-        </div>
+      <h2 class="section-title">Per-App Toggles</h2>
+      <div id="platforms" class="space-y-4"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="section-title">Emergency Blur</h2>
+      <div class="card text-sm text-gray-400">
+        Press <kbd class="kbd">Esc</kbd> twice quickly on WhatsApp or Telegram to blur the whole page at once, whatever your settings say. Do it again to show the page. The popup has the same button. Only the current tab is affected, and a reload clears it.
       </div>
     </section>
 
     <section class="mb-8">
-      <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Security</h2>
-      <div class="bg-gray-900 rounded-xl p-4 space-y-4">
-        <div>
-          <h3 class="font-medium mb-2">Password</h3>
-          <div id="passwordSection" class="space-y-2">
-            <div id="noPasswordMsg" class="text-sm text-yellow-400 hidden">No password set. Set one below.</div>
-            <input type="password" id="currentPassword" placeholder="Current password" class="input-field hidden">
-            <input type="password" id="newPassword" placeholder="New password" class="input-field">
-            <input type="password" id="confirmPassword" placeholder="Confirm new password" class="input-field">
-            <button id="btnSetPassword" class="btn-primary">Set Password</button>
-            <div id="passwordError" class="text-sm text-red-400 hidden"></div>
-            <div id="passwordSuccess" class="text-sm text-green-400 hidden"></div>
-          </div>
+      <h2 class="section-title">Backup</h2>
+      <div class="card space-y-3">
+        <div class="flex gap-3">
+          <button type="button" id="btnExport" class="btn-secondary">Export settings</button>
+          <button type="button" id="btnImport" class="btn-secondary">Import settings</button>
+          <input type="file" id="importFile" accept="application/json,.json" class="hidden">
         </div>
-
-        <div>
-          <h3 class="font-medium mb-2">Auto-Lock</h3>
-          <label class="flex items-center justify-between text-sm"><span>Enabled</span><input type="checkbox" id="autoLockEnabled" class="toggle"></label>
-          <div class="mt-2">
-            <label class="text-sm">Timeout: <span id="timeoutValue">5</span> minutes</label>
-            <input type="range" id="autoLockTimeout" min="1" max="30" value="5" class="w-full">
-          </div>
-          <label class="flex items-center justify-between text-sm mt-2"><span>Lock on tab switch</span><input type="checkbox" id="lockOnBackground" class="toggle"></label>
-        </div>
-
-        <div>
-          <h3 class="font-medium text-red-400 mb-2">Danger Zone</h3>
-          <button id="btnUninstall" class="btn-danger">Delete Extension</button>
-          <p class="text-xs text-gray-500 mt-2">This action will ask for your password before uninstalling. Note: this does not prevent uninstallation via about:addons.</p>
-        </div>
+        <p id="backupStatus" class="hint" role="status">Saves your settings to a JSON file you can load on another browser.</p>
       </div>
     </section>
 
     <section class="mb-8">
-      <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">About</h2>
-      <div class="bg-gray-900 rounded-xl p-4 text-sm text-gray-400 space-y-1">
-        <p>Cowl v1.0.0 — Privacy Blur & Lock for WhatsApp/Telegram Web</p>
+      <h2 class="section-title">About</h2>
+      <div class="card text-sm text-gray-400 space-y-1">
+        <p>Cowl v<span id="version"></span> — Privacy Blur for WhatsApp/Telegram Web</p>
         <p>All data stored locally. No external servers.</p>
       </div>
     </section>
   </div>
+
+  <template id="platformTpl">
+    <div class="card platform">
+      <div class="row">
+        <h3 class="platform-name text-base font-semibold text-indigo-300"></h3>
+        <input type="checkbox" class="toggle" data-rel="enabled" aria-label="Enable blur on this app">
+      </div>
+      <div class="dim-group grid gap-6 mt-4 sm:grid-cols-2">
+        <div>
+          <h4 class="area-title">Sidebar</h4>
+          <div class="space-y-2.5">
+            <label class="row text-sm"><span>Contact name</span><input type="checkbox" class="toggle" data-rel="sidebar.blurName"></label>
+            <label class="row text-sm"><span>Profile photo</span><input type="checkbox" class="toggle" data-rel="sidebar.blurProfile"></label>
+            <label class="row text-sm"><span>Message preview</span><input type="checkbox" class="toggle" data-rel="sidebar.blurMessage"></label>
+          </div>
+        </div>
+        <div>
+          <h4 class="area-title">Chat</h4>
+          <div class="space-y-2.5">
+            <label class="row text-sm"><span>Contact name</span><input type="checkbox" class="toggle" data-rel="content.blurName"></label>
+            <label class="row text-sm"><span>Profile photo</span><input type="checkbox" class="toggle" data-rel="content.blurProfile"></label>
+            <label class="row text-sm"><span>Messages</span><input type="checkbox" class="toggle" data-rel="content.blurMessage"></label>
+            <label class="row text-sm"><span>Photos &amp; videos</span><input type="checkbox" class="toggle" data-rel="content.blurMedia"></label>
+            <label class="row text-sm"><span>Message box</span><input type="checkbox" class="toggle" data-rel="content.blurInput"></label>
+          </div>
+          <p class="hint mt-2">Messages blurs the whole bubble, media included.</p>
+        </div>
+      </div>
+    </div>
+  </template>
+
   <script src="options.js"></script>
 </body>
 </html>

@@ -30,68 +30,193 @@
   transform: translateX(18px);
 }
 
-.input-field {
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 1px solid #374151;
-  background: #1f2937;
-  color: #f3f4f6;
-  font-size: 14px;
-  outline: none;
+input[type='range'] {
+  accent-color: #6366f1;
+  cursor: pointer;
 }
 
-.input-field:focus {
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 2px rgba(79,70,229,0.3);
+.card {
+  background: #111827;
+  border-radius: 12px;
+  padding: 16px;
 }
 
-.btn-primary {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  background: #4f46e5;
-  color: #fff;
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.section-title {
+  margin-bottom: 12px;
   font-size: 14px;
   font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #9ca3af;
 }
 
-.btn-primary:hover {
-  background: #4338ca;
+.area-title {
+  margin-bottom: 10px;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+
+.hint {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.dim-group {
+  transition: opacity 0.2s;
+}
+
+.dim-group.is-off {
+  opacity: 0.45;
+}
+
+.seg {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 8px;
+  background: #1f2937;
+}
+
+.seg button {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.seg button:hover {
+  color: #f3f4f6;
+}
+
+.seg button[aria-pressed='true'] {
+  background: #4f46e5;
+  color: #fff;
+}
+
+/* Mirrors the engine in assets/css/injected-blur.css so the effect of each setting is visible here. */
+.preview {
+  --r: 8px;
+  --rm: 16px;
+  --ms: 240ms;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #1f2937;
+  background: #0b1220;
+}
+
+.preview-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.preview-row:hover {
+  background: #111827;
+}
+
+.preview-avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+}
+
+.preview-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.preview-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.preview-msg {
+  overflow: hidden;
+  font-size: 13px;
+  color: #9ca3af;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.preview-thumb {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f59e0b, #ef4444 55%, #3b82f6);
+}
+
+.preview-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.preview .t {
+  filter: blur(var(--r));
+  transition: filter var(--ms) ease;
+}
+
+.preview .m {
+  filter: blur(var(--rm));
+  transition: filter var(--ms) ease;
+}
+
+.preview[data-reveal='hover'] .preview-row:hover :is(.t, .m),
+.preview[data-off] :is(.t, .m) {
+  filter: none;
+}
+
+.preview[data-reveal='click'] .preview-row[data-open] :is(.t, .m) {
+  filter: none;
+}
+
+.preview[data-reveal='click'] .preview-row {
+  cursor: pointer;
+}
+
+.kbd {
+  padding: 1px 6px;
+  border: 1px solid #374151;
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: #1f2937;
+  font-size: 12px;
+  color: #e5e7eb;
 }
 
 .btn-secondary {
-  width: 100%;
-  padding: 10px;
+  padding: 8px 14px;
   border-radius: 8px;
-  border: 1px solid #374151;
-  background: transparent;
-  color: #d1d5db;
-  font-size: 14px;
+  background: #1f2937;
+  font-size: 13px;
+  font-weight: 500;
+  color: #e5e7eb;
   cursor: pointer;
   transition: background 0.15s;
 }
 
 .btn-secondary:hover {
-  background: #1f2937;
+  background: #374151;
 }
 
-.btn-danger {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  background: #dc2626;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.btn-danger:hover {
-  background: #b91c1c;
+.hint.is-error {
+  color: #f87171;
 }

@@ -1,122 +1,452 @@
-/* Cowl Blur Engine — injected into WhatsApp/Telegram Web pages */
-[data-cowl-blur] {
-  transition: filter 0.2s ease;
-  filter: blur(var(--cowl-blur-radius, 8px));
-  pointer-events: auto;
+/* Cowl blur engine — injected into WhatsApp Web / Telegram Web.
+   content/blur.js only sets state on <html>; every selector lives here, so nodes added later are blurred
+   on insertion (no unblurred flash) and a settings change needs no DOM re-scan and no reload.
+
+   --cowl-r / --cowl-rm       blur radius for text / media
+   --cowl-ms                  transition duration
+   --cowl-f-<app>-<area>-<x>  "blur(...)" while a category is on, "none" when off (area: sb = sidebar, ct = chat)
+   [data-cowl-reveal]         hover (default) | click | never
+   [data-cowl-open]           element opened by a click (set by content/blur.js in click mode)
+   [data-cowl-cover]          page-wide cover: away (window lost focus) | idle | panic (Esc twice)
+
+   Reveal works by overriding the category variable to "none" on the hovered/opened row or bubble; descendants inherit it.
+   Every reveal element also carries container-name: cowl-reveal (no layout effect without container-type): that is how
+   blur.js finds the row/bubble that was clicked without duplicating these selectors in JS.
+   Selectors use :not(… *) so a fallback never matches inside its own parent (no compounded blur). */
+
+:root {
+  --cowl-r: 8px;
+  --cowl-rm: 16px;
+  --cowl-ms: 240ms;
+  /* boot state until the real settings arrive: sensitive content starts blurred */
+  --cowl-f-wa-sb-name: blur(var(--cowl-r));
+  --cowl-f-wa-sb-profile: blur(var(--cowl-r));
+  --cowl-f-wa-sb-message: blur(var(--cowl-r));
+  --cowl-f-wa-ct-name: blur(var(--cowl-r));
+  --cowl-f-wa-ct-profile: blur(var(--cowl-r));
+  --cowl-f-wa-ct-message: blur(var(--cowl-r));
+  --cowl-f-wa-ct-media: blur(var(--cowl-rm));
+  --cowl-f-wa-ct-input: none;
+  --cowl-f-tg-sb-name: blur(var(--cowl-r));
+  --cowl-f-tg-sb-profile: blur(var(--cowl-r));
+  --cowl-f-tg-sb-message: blur(var(--cowl-r));
+  --cowl-f-tg-ct-name: blur(var(--cowl-r));
+  --cowl-f-tg-ct-profile: blur(var(--cowl-r));
+  --cowl-f-tg-ct-message: blur(var(--cowl-r));
+  --cowl-f-tg-ct-media: blur(var(--cowl-rm));
+  --cowl-f-tg-ct-input: none;
 }
 
-[data-cowl-blur]:hover {
-  filter: blur(0px) !important;
+/* ===================== WhatsApp Web ===================== */
+
+/* sidebar: blur */
+#pane-side [data-testid="cell-frame-title"] {
+  filter: var(--cowl-f-wa-sb-name, none);
+  transition: filter var(--cowl-ms) ease;
+}
+#side :is(img:not([data-plain-text]), [data-icon^="default-"]) {
+  filter: var(--cowl-f-wa-sb-profile, none);
+  transition: filter var(--cowl-ms) ease;
+}
+#pane-side :is(
+    [data-testid="cell-frame-secondary"],
+    [data-testid="cell-frame-container"] span[title]:not([data-testid="cell-frame-title"] *, [data-testid="cell-frame-secondary"] *)
+  ) {
+  filter: var(--cowl-f-wa-sb-message, none);
+  transition: filter var(--cowl-ms) ease;
 }
 
-[data-cowl-blur=cowl-blur-active] {
-  filter: blur(var(--cowl-blur-radius, 8px));
+/* sidebar: reveal on hover */
+:is(
+  #pane-side :is([data-testid="cell-frame-container"], [role="listitem"]),
+  #pane-side [data-testid="cell-frame-title"],
+  #side :is(img:not([data-plain-text]), [data-icon^="default-"]),
+  #pane-side :is(
+    [data-testid="cell-frame-secondary"],
+    [data-testid="cell-frame-container"] span[title]:not([data-testid="cell-frame-title"] *, [data-testid="cell-frame-secondary"] *)
+  )
+) {
+  container-name: cowl-reveal;
+}
+html:not([data-cowl-reveal="never"]):not([data-cowl-reveal="click"]) :is(
+  #pane-side :is([data-testid="cell-frame-container"], [role="listitem"]),
+  #pane-side [data-testid="cell-frame-title"],
+  #side :is(img:not([data-plain-text]), [data-icon^="default-"]),
+  #pane-side :is(
+    [data-testid="cell-frame-secondary"],
+    [data-testid="cell-frame-container"] span[title]:not([data-testid="cell-frame-title"] *, [data-testid="cell-frame-secondary"] *)
+  )
+):hover {
+  --cowl-f-wa-sb-name: none;
+  --cowl-f-wa-sb-profile: none;
+  --cowl-f-wa-sb-message: none;
+}
+html[data-cowl-reveal="click"] :is(
+  #pane-side :is([data-testid="cell-frame-container"], [role="listitem"]),
+  #pane-side [data-testid="cell-frame-title"],
+  #side :is(img:not([data-plain-text]), [data-icon^="default-"]),
+  #pane-side :is(
+    [data-testid="cell-frame-secondary"],
+    [data-testid="cell-frame-container"] span[title]:not([data-testid="cell-frame-title"] *, [data-testid="cell-frame-secondary"] *)
+  )
+)[data-cowl-open] {
+  --cowl-f-wa-sb-name: none;
+  --cowl-f-wa-sb-profile: none;
+  --cowl-f-wa-sb-message: none;
 }
 
-[data-cowl-blur=cowl-blur-active]:hover {
-  filter: blur(0px) !important;
+/* chat: blur */
+#main header :is([data-testid="conversation-info-header"], [data-testid="conversation-header"]),
+#main header span[dir="auto"]:not(:is([data-testid="conversation-info-header"], [data-testid="conversation-header"]) *),
+#main :is(.message-in, .message-out) [data-testid="author"] {
+  filter: var(--cowl-f-wa-ct-name, none);
+  transition: filter var(--cowl-ms) ease;
+}
+#main header :is(img:not([data-plain-text]), [data-icon^="default-"]) {
+  filter: var(--cowl-f-wa-ct-profile, none);
+  transition: filter var(--cowl-ms) ease;
+}
+#main :is(.message-in, .message-out, [data-testid="msg-container"]:not(:is(.message-in, .message-out) *)) {
+  filter: var(--cowl-f-wa-ct-message, none);
+  transition: filter var(--cowl-ms) ease;
+}
+#main :is(.message-in, .message-out, [data-testid="msg-container"], [data-testid="conversation-panel-messages"]) :is(img:not([data-plain-text]), video, canvas) {
+  filter: var(--cowl-f-wa-ct-media, none);
+  transition: filter var(--cowl-ms) ease;
+}
+#main footer [contenteditable="true"] {
+  filter: var(--cowl-f-wa-ct-input, none);
+  transition: filter var(--cowl-ms) ease;
 }
 
-/* Cowl Lock Screen Overlay */
-#cowl-lockscreen-overlay {
+/* chat: reveal on hover */
+:is(
+  #main header,
+  #main header :is([data-testid="conversation-info-header"], [data-testid="conversation-header"]),
+  #main header span[dir="auto"]:not(:is([data-testid="conversation-info-header"], [data-testid="conversation-header"]) *),
+  #main :is(.message-in, .message-out) [data-testid="author"],
+  #main header :is(img:not([data-plain-text]), [data-icon^="default-"])
+) {
+  container-name: cowl-reveal;
+}
+html:not([data-cowl-reveal="never"]):not([data-cowl-reveal="click"]) :is(
+  #main header,
+  #main header :is([data-testid="conversation-info-header"], [data-testid="conversation-header"]),
+  #main header span[dir="auto"]:not(:is([data-testid="conversation-info-header"], [data-testid="conversation-header"]) *),
+  #main :is(.message-in, .message-out) [data-testid="author"],
+  #main header :is(img:not([data-plain-text]), [data-icon^="default-"])
+):hover {
+  --cowl-f-wa-ct-name: none;
+  --cowl-f-wa-ct-profile: none;
+}
+html[data-cowl-reveal="click"] :is(
+  #main header,
+  #main header :is([data-testid="conversation-info-header"], [data-testid="conversation-header"]),
+  #main header span[dir="auto"]:not(:is([data-testid="conversation-info-header"], [data-testid="conversation-header"]) *),
+  #main :is(.message-in, .message-out) [data-testid="author"],
+  #main header :is(img:not([data-plain-text]), [data-icon^="default-"])
+)[data-cowl-open] {
+  --cowl-f-wa-ct-name: none;
+  --cowl-f-wa-ct-profile: none;
+}
+:is(
+  #main :is(.message-in, .message-out, [data-testid="msg-container"]),
+  #main :is(.message-in, .message-out, [data-testid="msg-container"]:not(:is(.message-in, .message-out) *)),
+  #main :is(.message-in, .message-out, [data-testid="msg-container"], [data-testid="conversation-panel-messages"]) :is(img:not([data-plain-text]), video, canvas),
+  #main header :is([data-testid="conversation-info-header"], [data-testid="conversation-header"]),
+  #main header span[dir="auto"]:not(:is([data-testid="conversation-info-header"], [data-testid="conversation-header"]) *),
+  #main :is(.message-in, .message-out) [data-testid="author"]
+) {
+  container-name: cowl-reveal;
+}
+html:not([data-cowl-reveal="never"]):not([data-cowl-reveal="click"]) :is(
+  #main :is(.message-in, .message-out, [data-testid="msg-container"]),
+  #main :is(.message-in, .message-out, [data-testid="msg-container"]:not(:is(.message-in, .message-out) *)),
+  #main :is(.message-in, .message-out, [data-testid="msg-container"], [data-testid="conversation-panel-messages"]) :is(img:not([data-plain-text]), video, canvas),
+  #main header :is([data-testid="conversation-info-header"], [data-testid="conversation-header"]),
+  #main header span[dir="auto"]:not(:is([data-testid="conversation-info-header"], [data-testid="conversation-header"]) *),
+  #main :is(.message-in, .message-out) [data-testid="author"]
+):hover {
+  --cowl-f-wa-ct-message: none;
+  --cowl-f-wa-ct-media: none;
+  --cowl-f-wa-ct-name: none;
+}
+html[data-cowl-reveal="click"] :is(
+  #main :is(.message-in, .message-out, [data-testid="msg-container"]),
+  #main :is(.message-in, .message-out, [data-testid="msg-container"]:not(:is(.message-in, .message-out) *)),
+  #main :is(.message-in, .message-out, [data-testid="msg-container"], [data-testid="conversation-panel-messages"]) :is(img:not([data-plain-text]), video, canvas),
+  #main header :is([data-testid="conversation-info-header"], [data-testid="conversation-header"]),
+  #main header span[dir="auto"]:not(:is([data-testid="conversation-info-header"], [data-testid="conversation-header"]) *),
+  #main :is(.message-in, .message-out) [data-testid="author"]
+)[data-cowl-open] {
+  --cowl-f-wa-ct-message: none;
+  --cowl-f-wa-ct-media: none;
+  --cowl-f-wa-ct-name: none;
+}
+:is(
+  #main footer,
+  #main footer [contenteditable="true"]
+) {
+  container-name: cowl-reveal;
+}
+html:not([data-cowl-reveal="never"]):not([data-cowl-reveal="click"]) :is(
+  #main footer,
+  #main footer [contenteditable="true"]
+):is(:hover, :focus-within) {
+  --cowl-f-wa-ct-input: none;
+}
+html[data-cowl-reveal="click"] :is(
+  #main footer,
+  #main footer [contenteditable="true"]
+):focus-within {
+  --cowl-f-wa-ct-input: none;
+}
+
+/* ===================== Telegram Web (K and A clients) ===================== */
+
+/* sidebar: blur */
+#column-left .chatlist-chat .dialog-title :is(.user-title, .peer-title:not(.user-title *)),
+#LeftColumn .Chat .fullName {
+  filter: var(--cowl-f-tg-sb-name, none);
+  transition: filter var(--cowl-ms) ease;
+}
+#column-left .chatlist-chat :is(avatar-element, .avatar:not(avatar-element *)),
+#LeftColumn .Chat .Avatar {
+  filter: var(--cowl-f-tg-sb-profile, none);
+  transition: filter var(--cowl-ms) ease;
+}
+#column-left .chatlist-chat :is(.dialog-subtitle-span-wrapper, .user-last-message:not(.dialog-subtitle-span-wrapper *)),
+#LeftColumn .Chat :is(.last-message, .last-message-summary:not(.last-message *)) {
+  filter: var(--cowl-f-tg-sb-message, none);
+  transition: filter var(--cowl-ms) ease;
+}
+
+/* sidebar: reveal on hover */
+:is(
+  #column-left .chatlist-chat,
+  #LeftColumn .Chat,
+  #column-left .chatlist-chat .dialog-title :is(.user-title, .peer-title:not(.user-title *)),
+  #LeftColumn .Chat .fullName,
+  #column-left .chatlist-chat :is(avatar-element, .avatar:not(avatar-element *)),
+  #LeftColumn .Chat .Avatar,
+  #column-left .chatlist-chat :is(.dialog-subtitle-span-wrapper, .user-last-message:not(.dialog-subtitle-span-wrapper *)),
+  #LeftColumn .Chat :is(.last-message, .last-message-summary:not(.last-message *))
+) {
+  container-name: cowl-reveal;
+}
+html:not([data-cowl-reveal="never"]):not([data-cowl-reveal="click"]) :is(
+  #column-left .chatlist-chat,
+  #LeftColumn .Chat,
+  #column-left .chatlist-chat .dialog-title :is(.user-title, .peer-title:not(.user-title *)),
+  #LeftColumn .Chat .fullName,
+  #column-left .chatlist-chat :is(avatar-element, .avatar:not(avatar-element *)),
+  #LeftColumn .Chat .Avatar,
+  #column-left .chatlist-chat :is(.dialog-subtitle-span-wrapper, .user-last-message:not(.dialog-subtitle-span-wrapper *)),
+  #LeftColumn .Chat :is(.last-message, .last-message-summary:not(.last-message *))
+):hover {
+  --cowl-f-tg-sb-name: none;
+  --cowl-f-tg-sb-profile: none;
+  --cowl-f-tg-sb-message: none;
+}
+html[data-cowl-reveal="click"] :is(
+  #column-left .chatlist-chat,
+  #LeftColumn .Chat,
+  #column-left .chatlist-chat .dialog-title :is(.user-title, .peer-title:not(.user-title *)),
+  #LeftColumn .Chat .fullName,
+  #column-left .chatlist-chat :is(avatar-element, .avatar:not(avatar-element *)),
+  #LeftColumn .Chat .Avatar,
+  #column-left .chatlist-chat :is(.dialog-subtitle-span-wrapper, .user-last-message:not(.dialog-subtitle-span-wrapper *)),
+  #LeftColumn .Chat :is(.last-message, .last-message-summary:not(.last-message *))
+)[data-cowl-open] {
+  --cowl-f-tg-sb-name: none;
+  --cowl-f-tg-sb-profile: none;
+  --cowl-f-tg-sb-message: none;
+}
+
+/* chat: blur */
+#column-center .chat-info :is(.user-title, .peer-title:not(.user-title *)),
+#column-center .bubble .name,
+#MiddleColumn .fullName {
+  filter: var(--cowl-f-tg-ct-name, none);
+  transition: filter var(--cowl-ms) ease;
+}
+#column-center :is(.chat-info, .bubble) :is(avatar-element, .avatar:not(avatar-element *)),
+#MiddleColumn :is(.MiddleHeader, .Message) .Avatar {
+  filter: var(--cowl-f-tg-ct-profile, none);
+  transition: filter var(--cowl-ms) ease;
+}
+#column-center .bubble:not(.service) .bubble-content,
+#MiddleColumn .Message .message-content {
+  filter: var(--cowl-f-tg-ct-message, none);
+  transition: filter var(--cowl-ms) ease;
+}
+#column-center .bubble :is(.media-photo, .media-video, .media-sticker, canvas.thumbnail),
+#MiddleColumn .Message :is(.media-inner, .Sticker, .RoundVideo) {
+  filter: var(--cowl-f-tg-ct-media, none);
+  transition: filter var(--cowl-ms) ease;
+}
+#column-center .input-message-input,
+#MiddleColumn :is(#editable-message-text, #message-input-text, .Composer [contenteditable="true"]) {
+  filter: var(--cowl-f-tg-ct-input, none);
+  transition: filter var(--cowl-ms) ease;
+}
+
+/* chat: reveal on hover */
+:is(
+  #column-center :is(.sidebar-header, .topbar),
+  #MiddleColumn .MiddleHeader,
+  #column-center .chat-info :is(.user-title, .peer-title:not(.user-title *)),
+  #column-center .bubble .name,
+  #MiddleColumn .fullName,
+  #column-center :is(.chat-info, .bubble) :is(avatar-element, .avatar:not(avatar-element *)),
+  #MiddleColumn :is(.MiddleHeader, .Message) .Avatar
+) {
+  container-name: cowl-reveal;
+}
+html:not([data-cowl-reveal="never"]):not([data-cowl-reveal="click"]) :is(
+  #column-center :is(.sidebar-header, .topbar),
+  #MiddleColumn .MiddleHeader,
+  #column-center .chat-info :is(.user-title, .peer-title:not(.user-title *)),
+  #column-center .bubble .name,
+  #MiddleColumn .fullName,
+  #column-center :is(.chat-info, .bubble) :is(avatar-element, .avatar:not(avatar-element *)),
+  #MiddleColumn :is(.MiddleHeader, .Message) .Avatar
+):hover {
+  --cowl-f-tg-ct-name: none;
+  --cowl-f-tg-ct-profile: none;
+}
+html[data-cowl-reveal="click"] :is(
+  #column-center :is(.sidebar-header, .topbar),
+  #MiddleColumn .MiddleHeader,
+  #column-center .chat-info :is(.user-title, .peer-title:not(.user-title *)),
+  #column-center .bubble .name,
+  #MiddleColumn .fullName,
+  #column-center :is(.chat-info, .bubble) :is(avatar-element, .avatar:not(avatar-element *)),
+  #MiddleColumn :is(.MiddleHeader, .Message) .Avatar
+)[data-cowl-open] {
+  --cowl-f-tg-ct-name: none;
+  --cowl-f-tg-ct-profile: none;
+}
+:is(
+  #column-center .bubble:not(.service) .bubble-content,
+  #MiddleColumn .Message .message-content,
+  #MiddleColumn .Message .Avatar,
+  #column-center .bubble:not(.service) .bubble-content,
+  #MiddleColumn .Message .message-content,
+  #column-center .bubble :is(.media-photo, .media-video, .media-sticker, canvas.thumbnail),
+  #MiddleColumn .Message :is(.media-inner, .Sticker, .RoundVideo),
+  #column-center .chat-info :is(.user-title, .peer-title:not(.user-title *)),
+  #column-center .bubble .name,
+  #MiddleColumn .fullName,
+  #column-center :is(.chat-info, .bubble) :is(avatar-element, .avatar:not(avatar-element *)),
+  #MiddleColumn :is(.MiddleHeader, .Message) .Avatar
+) {
+  container-name: cowl-reveal;
+}
+html:not([data-cowl-reveal="never"]):not([data-cowl-reveal="click"]) :is(
+  #column-center .bubble:not(.service) .bubble-content,
+  #MiddleColumn .Message .message-content,
+  #MiddleColumn .Message .Avatar,
+  #column-center .bubble:not(.service) .bubble-content,
+  #MiddleColumn .Message .message-content,
+  #column-center .bubble :is(.media-photo, .media-video, .media-sticker, canvas.thumbnail),
+  #MiddleColumn .Message :is(.media-inner, .Sticker, .RoundVideo),
+  #column-center .chat-info :is(.user-title, .peer-title:not(.user-title *)),
+  #column-center .bubble .name,
+  #MiddleColumn .fullName,
+  #column-center :is(.chat-info, .bubble) :is(avatar-element, .avatar:not(avatar-element *)),
+  #MiddleColumn :is(.MiddleHeader, .Message) .Avatar
+):hover {
+  --cowl-f-tg-ct-message: none;
+  --cowl-f-tg-ct-media: none;
+  --cowl-f-tg-ct-name: none;
+  --cowl-f-tg-ct-profile: none;
+}
+html[data-cowl-reveal="click"] :is(
+  #column-center .bubble:not(.service) .bubble-content,
+  #MiddleColumn .Message .message-content,
+  #MiddleColumn .Message .Avatar,
+  #column-center .bubble:not(.service) .bubble-content,
+  #MiddleColumn .Message .message-content,
+  #column-center .bubble :is(.media-photo, .media-video, .media-sticker, canvas.thumbnail),
+  #MiddleColumn .Message :is(.media-inner, .Sticker, .RoundVideo),
+  #column-center .chat-info :is(.user-title, .peer-title:not(.user-title *)),
+  #column-center .bubble .name,
+  #MiddleColumn .fullName,
+  #column-center :is(.chat-info, .bubble) :is(avatar-element, .avatar:not(avatar-element *)),
+  #MiddleColumn :is(.MiddleHeader, .Message) .Avatar
+)[data-cowl-open] {
+  --cowl-f-tg-ct-message: none;
+  --cowl-f-tg-ct-media: none;
+  --cowl-f-tg-ct-name: none;
+  --cowl-f-tg-ct-profile: none;
+}
+:is(
+  #column-center .chat-input,
+  #MiddleColumn .Composer,
+  #column-center .input-message-input,
+  #MiddleColumn :is(#editable-message-text, #message-input-text, .Composer [contenteditable="true"])
+) {
+  container-name: cowl-reveal;
+}
+html:not([data-cowl-reveal="never"]):not([data-cowl-reveal="click"]) :is(
+  #column-center .chat-input,
+  #MiddleColumn .Composer,
+  #column-center .input-message-input,
+  #MiddleColumn :is(#editable-message-text, #message-input-text, .Composer [contenteditable="true"])
+):is(:hover, :focus-within) {
+  --cowl-f-tg-ct-input: none;
+}
+html[data-cowl-reveal="click"] :is(
+  #column-center .chat-input,
+  #MiddleColumn .Composer,
+  #column-center .input-message-input,
+  #MiddleColumn :is(#editable-message-text, #message-input-text, .Composer [contenteditable="true"])
+):focus-within {
+  --cowl-f-tg-ct-input: none;
+}
+
+/* ===================== page-wide cover (away / idle / panic) ===================== */
+html::after {
+  content: "";
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 999999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(15, 15, 25, 0.95);
-  backdrop-filter: blur(12px);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  inset: 0;
+  z-index: 2147483646;
+  pointer-events: none;
+  backdrop-filter: none;
+  transition: backdrop-filter var(--cowl-ms) ease;
 }
 
-#cowl-lockscreen-overlay * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+html[data-cowl-cover]::after {
+  backdrop-filter: blur(calc(var(--cowl-r) + 8px));
 }
 
-#cowl-lockscreen-box {
-  background: #1e1b4b;
-  border: 1px solid #4f46e5;
-  border-radius: 16px;
-  padding: 40px 36px;
-  width: 360px;
-  max-width: 90vw;
-  text-align: center;
-  color: #fff;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+html[data-cowl-cover="panic"]::after {
+  backdrop-filter: blur(28px);
+  transition-duration: 0ms;
 }
 
-#cowl-lockscreen-box h2 {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 8px;
+html::before {
+  display: none;
+  content: "";
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 2147483647;
+  pointer-events: none;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.92);
+  color: #e5e7eb;
+  font: 12px/1.4 system-ui, sans-serif;
 }
 
-#cowl-lockscreen-box p {
-  font-size: 13px;
-  color: #9ca3af;
-  margin-bottom: 24px;
+html[data-cowl-cover="idle"]::before {
+  display: block;
+  content: "Cowl: idle, move the mouse to show";
 }
 
-#cowl-lockscreen-box input[type=password] {
-  width: 100%;
-  padding: 12px 16px;
-  border-radius: 8px;
-  border: 1px solid #4f46e5;
-  background: #0f0f1a;
-  color: #fff;
-  font-size: 15px;
-  outline: none;
-  margin-bottom: 12px;
-}
-
-#cowl-lockscreen-box input[type=password]:focus {
-  border-color: #7c3aed;
-  box-shadow: 0 0 0 3px rgba(124,58,237,0.3);
-}
-
-#cowl-lockscreen-box button {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-#cowl-lockscreen-btn-unlock {
-  background: #4f46e5;
-  color: #fff;
-  margin-bottom: 8px;
-}
-
-#cowl-lockscreen-btn-unlock:hover {
-  background: #4338ca;
-}
-
-#cowl-lockscreen-btn-reset {
-  background: transparent;
-  color: #9ca3af;
-  font-size: 13px;
-  font-weight: 400;
-  border: 1px solid #374151;
-}
-
-#cowl-lockscreen-btn-reset:hover {
-  background: #1f2937;
-  color: #fff;
-}
-
-#cowl-lockscreen-error {
-  color: #ef4444;
-  font-size: 12px;
-  margin-top: 8px;
-  min-height: 18px;
+html[data-cowl-cover="panic"]::before {
+  display: block;
+  content: "Cowl: blurred, press Esc twice to show";
 }

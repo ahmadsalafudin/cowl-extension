@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Cowl - Secure Messaging Privacy",
-  "version": "1.1.0",
-  "description": "Blurs messages/media and adds password auto-lock protection for WhatsApp Web and Telegram Web.",
+  "version": "1.2.0",
+  "description": "Blurs messages, names, profile photos and media on WhatsApp Web and Telegram Web until you hover.",
   "default_locale": "en",
   "browser_specific_settings": {
     "gecko": {
@@ -15,30 +15,19 @@
   },
   "permissions": [
     "storage",
-    "idle",
-    "tabs",
-    "identity",
-    "management"
+    "tabs"
   ],
   "host_permissions": [
     "*://web.whatsapp.com/*",
-    "*://web.telegram.org/*",
-    "https://accounts.google.com/*",
-    "https://www.googleapis.com/*"
+    "*://web.telegram.org/*"
   ],
   "background": {
     "scripts": ["background/background.js"]
   },
   "content_scripts": [
     {
-      "matches": ["*://web.whatsapp.com/*"],
-      "js": ["content/blur-whatsapp.js", "content/lockscreen.js"],
-      "css": ["assets/css/injected-blur.css"],
-      "run_at": "document_start"
-    },
-    {
-      "matches": ["*://web.telegram.org/*"],
-      "js": ["content/blur-telegram.js", "content/lockscreen.js"],
+      "matches": ["*://web.whatsapp.com/*", "*://web.telegram.org/*"],
+      "js": ["content/blur.js"],
       "css": ["assets/css/injected-blur.css"],
       "run_at": "document_start"
     }
